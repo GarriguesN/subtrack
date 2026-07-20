@@ -232,7 +232,8 @@ export default function AddExpensePage() {
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="input"
+              className="input sm:!w-full"
+              style={{ width: '86%' }}
             />
           </div>
         </div>

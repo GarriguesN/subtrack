@@ -5,12 +5,17 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#2563EB",
-  "background_color": "#ffffff",
+  "theme_color": "#c3423f",
+  "background_color": "#f0edee",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     },
     {

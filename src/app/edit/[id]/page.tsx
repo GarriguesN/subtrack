@@ -247,7 +247,7 @@ export default function EditExpensePage() {
           <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Date</label>
           <div className="relative">
             <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} className="input" />
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} className="input sm:!w-full" style={{ width: '86%' }} />
           </div>
         </div>
 

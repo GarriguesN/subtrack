@@ -14,30 +14,59 @@ const links = [
 export default function NavBar() {
   const pathname = usePathname();
 
+  function isActive(href: string) {
+    return pathname === href || (href !== '/' && pathname.startsWith(href));
+  }
+
   return (
-    <nav className="sticky top-0 z-50 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
-      <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-12">
-        <Link href="/" className="font-bold text-lg tracking-tight flex items-center gap-2" style={{ color: 'var(--accent)' }}>
-          <LayoutDashboard size={18} />
-          SubTrack
-        </Link>
-        <div className="flex items-center gap-1">
+    <>
+      {/* Top navbar — desktop only */}
+      <nav className="hidden sm:block sticky top-0 z-50 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
+        <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-12">
+          <Link href="/" className="font-bold text-lg tracking-tight flex items-center gap-2" style={{ color: 'var(--accent)' }}>
+            <LayoutDashboard size={18} />
+            SubTrack
+          </Link>
+          <div className="flex items-center gap-1">
+            {links.map(link => {
+              const Icon = link.icon;
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`nav-link flex items-center justify-center min-w-[44px] min-h-[44px] ${active ? 'active' : ''}`}
+                >
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
+
+      {/* Bottom navbar — mobile only */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)] bg-[var(--bg-primary)]/95 backdrop-blur-md border-t-2 border-[var(--accent)]">
+        <div className="flex items-center justify-around h-12">
           {links.map(link => {
             const Icon = link.icon;
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+            const active = isActive(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link flex items-center justify-center min-w-[44px] min-h-[44px] ${isActive ? 'active' : ''}`}
+                className={`flex flex-col items-center justify-center flex-1 h-full transition-all ${
+                  active
+                    ? 'text-[var(--accent)] bg-[var(--accent)]/10'
+                    : 'text-[var(--text-muted)]'
+                }`}
               >
-                <Icon size={16} className="sm:hidden" />
-                <span className="hidden sm:inline">{link.label}</span>
+                <Icon size={24} />
               </Link>
             );
           })}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }
