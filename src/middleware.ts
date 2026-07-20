@@ -4,11 +4,10 @@ const ALLOWED_ORIGINS = [
   'https://subtrack.nglab.es',
   'http://subtrack.nglab.es',
   'http://localhost:3000',
-  undefined, // allow same-origin (no Origin header = same origin request)
+  'https://notes.nglab.es',
 ];
 
 export function middleware(request: NextRequest) {
-  // Only protect /api/ routes
   if (!request.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
@@ -16,34 +15,37 @@ export function middleware(request: NextRequest) {
   const origin = request.headers.get('origin');
   const referer = request.headers.get('referer');
 
-  // Allow same-origin requests (no Origin header = same origin)
-  if (!origin) {
-    // Also check referer for extra safety on same-origin GET requests
-    if (referer) {
-      try {
-        const refUrl = new URL(referer);
-        if (refUrl.hostname === request.nextUrl.hostname) {
-          return NextResponse.next();
-        }
-      } catch {}
-      return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+  // Allow when no Origin and no Referer (server-side, curl, etc.)
+  if (!origin && !referer) {
+    return NextResponse.next();
+  }
+
+  // Check Origin header
+  if (origin) {
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return NextResponse.next();
     }
-    return NextResponse.next();
+    return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  // Allow known origins
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    return NextResponse.next();
+  // No Origin but has Referer: check if it's our domain
+  if (referer) {
+    try {
+      const refUrl = new URL(referer);
+      if (refUrl.hostname.endsWith('nglab.es') || refUrl.hostname === 'localhost') {
+        return NextResponse.next();
+      }
+    } catch {}
+    return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  // Block everything else
-  return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
-    status: 403,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return NextResponse.next();
 }
 
 export const config = {

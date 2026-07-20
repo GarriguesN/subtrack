@@ -33,8 +33,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
   const toggle = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
 
-  if (!mounted) return <>{children}</>;
-
+  // Always render Provider to keep stable tree structure
   return (
     <ThemeCtx.Provider value={{ theme, toggle }}>
       {children}
