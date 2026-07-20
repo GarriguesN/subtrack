@@ -11,7 +11,41 @@ export default function PinGate({ children }: { children: React.ReactNode }) {
   const [settingPin, setSettingPin] = useState(false);
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [pinLength, setPinLength] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const verifyTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-verify instantly when PIN reaches the exact stored length
+  useEffect(() => {
+    if (pinLength && pin.length === pinLength && !verifying) {
+      autoVerify(pin);
+    }
+  }, [pin, pinLength]);
+
+  async function autoVerify(pinToCheck: string) {
+    setVerifying(true);
+    setError('');
+    try {
+      const res = await fetch('/api/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', pin: pinToCheck }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setUnlocked(true);
+        sessionStorage.setItem('subtrack_unlocked', 'true');
+      } else {
+        setError('Wrong PIN');
+        setPin('');
+        setVerifying(false);
+      }
+    } catch {
+      setError('Error verifying PIN');
+      setVerifying(false);
+    }
+  }
 
   // On mount, check PIN state
   useEffect(() => {
@@ -26,6 +60,7 @@ export default function PinGate({ children }: { children: React.ReactNode }) {
       .then(r => r.json())
       .then(data => {
         setPinConfigured(data.configured);
+        if (data.length) setPinLength(data.length);
         if (!data.configured) {
           // No PIN set = auto-unlock
           setUnlocked(true);
@@ -46,6 +81,7 @@ export default function PinGate({ children }: { children: React.ReactNode }) {
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setVerifying(true);
 
     try {
       const res = await fetch('/api/pin', {
@@ -60,9 +96,11 @@ export default function PinGate({ children }: { children: React.ReactNode }) {
       } else {
         setError('Wrong PIN');
         setPin('');
+        setVerifying(false);
       }
     } catch {
       setError('Error verifying PIN');
+      setVerifying(false);
     }
   }
 
@@ -155,6 +193,7 @@ export default function PinGate({ children }: { children: React.ReactNode }) {
           value={pin}
           onChange={e => setPin(e.target.value)}
           className="input text-center text-2xl tracking-widest mb-4"
+          style={{ padding: '.625rem .75rem' }}
           placeholder="• • • •"
           maxLength={10}
           autoFocus
@@ -164,10 +203,10 @@ export default function PinGate({ children }: { children: React.ReactNode }) {
         )}
         <button
           type="submit"
-          disabled={pin.length < 4}
+          disabled={pin.length < 4 || verifying}
           className="btn btn-primary w-full"
         >
-          Unlock
+          {verifying ? 'Verifying…' : 'Unlock'}
         </button>
       </form>
 

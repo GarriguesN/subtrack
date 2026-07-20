@@ -1,11 +1,9 @@
 'use client';
 
-import { useTheme } from '@/components/ThemeProvider';
 import { useEffect, useState } from 'react';
 import { KeyRound, Lock, Trash2 } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { theme, toggle } = useTheme();
   const [pinConfigured, setPinConfigured] = useState(false);
   const [showPinForm, setShowPinForm] = useState(false);
   const [newPin, setNewPin] = useState('');
@@ -74,23 +72,6 @@ export default function SettingsPage() {
     <div className="max-w-lg mx-auto space-y-6">
       <h1 className="text-xl font-bold">Settings</h1>
 
-      {/* Appearance */}
-      <div className="card">
-        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">Appearance</h2>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium">Dark Mode</p>
-            <p className="text-xs text-[var(--text-muted)]">Toggle dark theme</p>
-          </div>
-          <button
-            onClick={toggle}
-            className={`relative w-14 h-7 rounded-full overflow-hidden transition-colors ${theme === 'dark' ? 'bg-[var(--accent)]' : 'bg-[var(--border-color)]'}`}
-          >
-            <span className={`absolute left-0.5 top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${theme === 'dark' ? 'translate-x-7' : 'translate-x-0'}`} />
-          </button>
-        </div>
-      </div>
-
       {/* PIN Protection */}
       <div className="card">
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">Security</h2>
@@ -110,7 +91,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        {pinSuccess && <p className="text-xs text-green-600 dark:text-green-400 mb-3">{pinSuccess}</p>}
+        {pinSuccess && <p className="text-xs text-[var(--success)] mb-3">{pinSuccess}</p>}
         {pinError && <p className="text-xs text-red-500 mb-3">{pinError}</p>}
 
         {showPinForm && (
@@ -122,6 +103,7 @@ export default function SettingsPage() {
               value={newPin}
               onChange={e => setNewPin(e.target.value)}
               className="input text-center text-lg tracking-widest"
+              style={{ padding: '.625rem .75rem' }}
               placeholder="New PIN"
               maxLength={10}
               autoFocus
@@ -133,6 +115,7 @@ export default function SettingsPage() {
               value={confirmPin}
               onChange={e => setConfirmPin(e.target.value)}
               className="input text-center text-lg tracking-widest"
+              style={{ padding: '.625rem .75rem' }}
               placeholder="Confirm PIN"
               maxLength={10}
             />

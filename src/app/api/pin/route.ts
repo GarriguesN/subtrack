@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       // Set new PIN
       const hashed = hashPin(pin);
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('pin_hash', hashed);
+      db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('pin_length', String(pin.length));
       return NextResponse.json({ success: true });
     }
 
@@ -64,9 +65,13 @@ export async function GET() {
   try {
     const db = getDb();
     const stored = db.prepare('SELECT value FROM settings WHERE key = ?').get('pin_hash') as { value: string } | undefined;
-    return NextResponse.json({ configured: !!stored });
+    const lengthRow = db.prepare('SELECT value FROM settings WHERE key = ?').get('pin_length') as { value: string } | undefined;
+    return NextResponse.json({
+      configured: !!stored,
+      length: lengthRow ? parseInt(lengthRow.value) : null,
+    });
   } catch (error) {
     console.error('GET /api/pin error:', error);
-    return NextResponse.json({ configured: false });
+    return NextResponse.json({ configured: false, length: null });
   }
 }

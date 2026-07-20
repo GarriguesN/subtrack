@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Brain, Car, Film, Gamepad2, Pizza, Home, HeartPulse, Package, Search, Loader2, X, Calendar, CalendarRange, RefreshCw, CalendarDays, Clock } from 'lucide-react';
+import { Brain, Car, Film, Gamepad2, Pizza, Home, HeartPulse, Package, Search, Loader2, X, Calendar, CalendarRange, RefreshCw, CalendarDays, Clock, Euro } from 'lucide-react';
 
 const categoryIcons: Record<string, React.ReactNode> = {
   IA: <Brain size={20} />,
@@ -162,15 +162,21 @@ export default function AddExpensePage() {
 
         <div>
           <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Amount (€)</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0.01"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            className="input"
-            placeholder="0.00"
-          />
+          <div className="relative">
+            <Euro
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
+            />
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              className="input"
+              placeholder="0.00"
+            />
+          </div>
         </div>
 
         <div>
@@ -217,12 +223,18 @@ export default function AddExpensePage() {
 
         <div>
           <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className="input"
-          />
+          <div className="relative">
+            <Calendar
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
+            />
+            <input
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+              className="input"
+            />
+          </div>
         </div>
 
         <div>
@@ -231,6 +243,7 @@ export default function AddExpensePage() {
             value={notes}
             onChange={e => setNotes(e.target.value)}
             className="input min-h-[80px] resize-y"
+            style={{ padding: '.625rem .75rem' }}
             placeholder="Any additional info..."
           />
         </div>
@@ -285,6 +298,7 @@ export default function AddExpensePage() {
                 type="text"
                 placeholder="https://example.com/logo.png"
                 className="input text-xs flex-1"
+                style={{ padding: '.625rem .75rem' }}
                 id="manual-logo-url"
               />
               <button

@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTheme } from './ThemeProvider';
-import { Moon, Sun, LayoutDashboard, List, Plus, Settings } from 'lucide-react';
+import { LayoutDashboard, List, Plus, Settings } from 'lucide-react';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,7 +13,6 @@ const links = [
 
 export default function NavBar() {
   const pathname = usePathname();
-  const { theme, toggle } = useTheme();
 
   return (
     <nav className="sticky top-0 z-50 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
@@ -38,13 +36,6 @@ export default function NavBar() {
               </Link>
             );
           })}
-          <button
-            onClick={toggle}
-            className="nav-link ml-2 flex items-center justify-center min-w-[44px] min-h-[44px]"
-            aria-label="Toggle dark mode"
-          >
-            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-          </button>
         </div>
       </div>
     </nav>

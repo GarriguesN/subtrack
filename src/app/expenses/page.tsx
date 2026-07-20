@@ -5,7 +5,7 @@ import { CategoryBadge } from '@/components/CategoryBadge';
 import { ExpenseLogo } from '@/components/ExpenseLogo';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Calendar, Filter, ArrowUpDown, X } from 'lucide-react';
 
 interface Expense {
   id: number;
@@ -66,66 +66,124 @@ export default function ExpensesPage() {
     }
   }
 
+  const hasActiveFilters = month !== '' || category !== '';
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div className="flex items-center gap-2">
-          <input
-            type="month"
-            value={month}
-            onChange={e => setMonth(e.target.value)}
-            className="input w-auto"
-          />
-          {month && (
+      {/* ── Filter panel ── */}
+      <div className="card space-y-3">
+        {/* Summary + clear-all row */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
+            {loading
+              ? 'Loading…'
+              : `${expenses.length} expense${expenses.length !== 1 ? 's' : ''} found`}
+          </p>
+          {hasActiveFilters && (
             <button
-              onClick={() => setMonth('')}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors whitespace-nowrap"
+              onClick={() => { setMonth(''); setCategory(''); }}
+              className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
             >
-              Show all
+              <X size={12} />
+              Clear filters
             </button>
           )}
         </div>
-        <span className="text-xs text-[var(--text-muted)] hidden sm:inline">
-          {month ? `Filtering by ${month}` : 'Showing all expenses'}
-        </span>
-        <select
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          className="select w-auto"
-        >
-          <option value="">All categories</option>
-          {categories.map(c => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <select
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value as 'date' | 'amount')}
-          className="select w-auto"
-        >
-          <option value="date">Sort: Date</option>
-          <option value="amount">Sort: Amount</option>
-        </select>
-      </div>
 
-      {/* Category chips */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setCategory('')}
-          className={`badge cursor-pointer transition-colors ${!category ? 'ring-2 ring-[var(--accent)]' : ''}`}
-          style={{ backgroundColor: category === '' ? 'var(--accent)' : 'var(--bg-secondary)', color: category === '' ? '#fff' : 'var(--text-primary)' }}
+        {/* Filter controls grid — stack on mobile, row on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {/* Month */}
+          <div className="relative">
+            <Calendar
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
+            />
+            <input
+              type="month"
+              value={month}
+              onChange={e => setMonth(e.target.value)}
+              className="input w-full sm:!w-full"
+              style={{ width: '84.4%' }}
+            />
+            {month && (
+              <button
+                onClick={() => setMonth('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+                title="Clear month"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Category */}
+          <div className="relative">
+            <Filter
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
+            />
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="select w-full"
+            >
+              <option value="">All categories</option>
+              {categories.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort */}
+          <div className="relative">
+            <ArrowUpDown
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
+            />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as 'date' | 'amount')}
+              className="select w-full"
+            >
+              <option value="date">Sort: Date</option>
+              <option value="amount">Sort: Amount</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Category chips — horizontal scroll, no wrap */}
+        <div
+          className="flex gap-1.5 overflow-x-auto pb-2"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
         >
-          All
-        </button>
-        {categories.map(c => (
+          <style>{`/* hide webkit scrollbar */.expense-chips::-webkit-scrollbar { display: none; }`}</style>
           <button
-            key={c}
-            onClick={() => setCategory(c)}
-            className={`badge cursor-pointer transition-colors ${category === c ? 'ring-2 ring-[var(--accent)]' : ''}`}
+            onClick={() => setCategory('')}
+            className={`badge cursor-pointer transition-all flex-shrink-0 ${
+              !category
+                ? 'bg-[var(--accent)] text-white border-2 border-[var(--accent)]'
+                : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+            }`}
           >
-            {c}
+            All
           </button>
-        ))}
+          {categories.map(c => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`badge cursor-pointer transition-all flex-shrink-0 ${
+                category === c
+                  ? 'bg-[var(--accent)] text-white border-2 border-[var(--accent)]'
+                  : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Expense list */}
